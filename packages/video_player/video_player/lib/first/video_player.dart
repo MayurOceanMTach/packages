@@ -9,9 +9,8 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:video_player/first/src/closed_caption_file.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
-
-import 'src/closed_caption_file.dart';
 
 export 'package:video_player_platform_interface/video_player_platform_interface.dart'
     show

@@ -11,8 +11,8 @@ library;
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'package:video_player/second_video_player.dart' as second;
+import 'package:video_player/first/video_player.dart';
+import 'package:video_player/second/second_video_player.dart' as second;
 
 void main() {
   runApp(
@@ -156,6 +156,7 @@ class _ButterFlyAssetVideo extends StatefulWidget {
 
 class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
   late VideoPlayerController _controller;
+
   late second.VideoPlayerController controller;
 
   bool istrue = false;
@@ -214,7 +215,7 @@ class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
                   aspectRatio: 16 / 9,
                   child: VideoPlayer(_controller),
                 )
-              : SizedBox(),
+              : const SizedBox(),
           AspectRatio(
             aspectRatio: 16 / 9,
             child: second.VideoPlayer(controller),
