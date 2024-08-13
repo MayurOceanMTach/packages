@@ -8,8 +8,11 @@
 /// video.
 library;
 
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:video_player/second_video_player.dart' as second;
 
 void main() {
   runApp(
@@ -86,13 +89,10 @@ class _ButterFlyAssetVideoInList extends StatelessWidget {
                 leading: Icon(Icons.cake),
                 title: Text('Video video'),
               ),
-              Stack(
-                  alignment: FractionalOffset.bottomRight +
-                      const FractionalOffset(-0.1, -0.1),
-                  children: <Widget>[
-                    _ButterFlyAssetVideo(),
-                    Image.asset('assets/flutter-mark-square-64.png'),
-                  ]),
+              Stack(alignment: FractionalOffset.bottomRight + const FractionalOffset(-0.1, -0.1), children: <Widget>[
+                _ButterFlyAssetVideo(),
+                Image.asset('assets/flutter-mark-square-64.png'),
+              ]),
             ],
           ),
         ])),
@@ -156,23 +156,50 @@ class _ButterFlyAssetVideo extends StatefulWidget {
 
 class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
   late VideoPlayerController _controller;
+  late second.VideoPlayerController controller;
+
+  bool istrue = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset('assets/Butterfly-209.mp4');
+    controller = second.VideoPlayerController.file(
+        File('/data/data/io.flutter.plugins.videoplayerexample/cache/Butterfly-209.mp4'));
 
-    _controller.addListener(() {
+    controller.addListener(() {
       setState(() {});
     });
-    _controller.setLooping(true);
-    _controller.initialize().then((_) => setState(() {}));
-    _controller.play();
+
+    controller.setLooping(true);
+    controller.initialize().then((_) => setState(() {}));
+    controller.play();
+    a();
+  }
+
+  Future<void> a() async {
+    Future.delayed(
+      const Duration(seconds: 20),
+      () {
+        _controller =
+            VideoPlayerController.file(File('/data/data/io.flutter.plugins.videoplayerexample/cache/mayu.mp4'));
+
+        _controller.addListener(() {
+          setState(() {});
+        });
+
+        _controller.setLooping(true);
+        _controller.initialize().then((_) => setState(() {}));
+        _controller.play();
+        istrue = true;
+        setState(() {});
+      },
+    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -181,23 +208,16 @@ class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Container(
-            padding: const EdgeInsets.only(top: 20.0),
-          ),
-          const Text('With assets mp4'),
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: <Widget>[
-                  VideoPlayer(_controller),
-                  _ControlsOverlay(controller: _controller),
-                  VideoProgressIndicator(_controller, allowScrubbing: true),
-                ],
-              ),
-            ),
+          // ignore: prefer_if_elements_to_conditional_expressions
+          istrue
+              ? AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: VideoPlayer(_controller),
+                )
+              : SizedBox(),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: second.VideoPlayer(controller),
           ),
         ],
       ),
@@ -214,18 +234,15 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
   late VideoPlayerController _controller;
 
   Future<ClosedCaptionFile> _loadCaptions() async {
-    final String fileContents = await DefaultAssetBundle.of(context)
-        .loadString('assets/bumble_bee_captions.vtt');
-    return WebVTTCaptionFile(
-        fileContents); // For vtt files, use WebVTTCaptionFile
+    final String fileContents = await DefaultAssetBundle.of(context).loadString('assets/bumble_bee_captions.vtt');
+    return WebVTTCaptionFile(fileContents); // For vtt files, use WebVTTCaptionFile
   }
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.networkUrl(
-      Uri.parse(
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4'),
+      Uri.parse('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4'),
       closedCaptionFile: _loadCaptions(),
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
     );
@@ -400,8 +417,7 @@ class _PlayerVideoAndPopPageState extends State<_PlayerVideoAndPopPage> {
   void initState() {
     super.initState();
 
-    _videoPlayerController =
-        VideoPlayerController.asset('assets/Butterfly-209.mp4');
+    _videoPlayerController = VideoPlayerController.asset('assets/Butterfly-209.mp4');
     _videoPlayerController.addListener(() {
       if (startedPlaying && !_videoPlayerController.value.isPlaying) {
         Navigator.pop(context);
